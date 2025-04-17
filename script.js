@@ -11,8 +11,20 @@ const Board = (() => {
 
   const getBoard = () => board;
 
-  const setPoint = (user, index) => {
-    board[index] = user.marker;
+  const getIndexesOfPlayerPoints = (player) => {
+    const indexes = [];
+
+    board.forEach((cell, index) => {
+      if(cell === player.marker) {
+        indexes.push(index);
+      }
+    });
+
+    return indexes;
+  }
+
+  const setPoint = (player, index) => {
+    board[index] = player.marker;
   }
 
   const clearBoard = () => board = [...emptyBoard];
@@ -21,6 +33,7 @@ const Board = (() => {
     getBoard,
     setPoint,
     clearBoard,
+    getIndexesOfPlayerPoints,
   }
 })();
 
@@ -30,12 +43,33 @@ const GameController = (() => {
 
   let currentPlayer = player1;
 
+  const winPositions = [
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6]
+  ]
+
+  const isPlayerWin = (player) => {
+    const indexes = Board.getIndexesOfPlayerPoints(player);
+
+    if(indexes > 3) return false;
+
+    return winPositions.some(winPosition => winPosition.every((wp, i) => wp === indexes[i]))
+  }
+
   const playMove = (index) => {
     Board.setPoint(currentPlayer, index);
     console.log(Board.getBoard());
 
-    // check winner
-    
+    if(isPlayerWin(currentPlayer)) {
+      console.log(`${currentPlayer.name} is ${isPlayerWin(currentPlayer) ? 'win' : 'not win'}`);
+      return;
+    } 
     // else check draw
     
     currentPlayer = currentPlayer === player1 ? player2 : player1;
@@ -53,14 +87,16 @@ const GameController = (() => {
 })();
 
 // Player 1
-GameController.playMove(0);
+GameController.playMove(2);
 // Player 2
 GameController.playMove(3);
 // Player 1
-GameController.playMove(1);
-// Player 2
 GameController.playMove(4);
+// Player 2
+GameController.playMove(0);
 // Player 1
-GameController.playMove(2);
+GameController.playMove(8);
+// Player 2
+GameController.playMove(6);
 
 
