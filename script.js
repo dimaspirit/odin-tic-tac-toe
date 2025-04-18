@@ -86,17 +86,41 @@ const GameController = (() => {
   }
 })();
 
+const UI = ((doc) => {
+  let boardNode = doc.querySelector('.board');
+  let clickCellHandler;
+
+  // let setClickCellHandler = ()
+
+  const renderBoard = (board) => {
+    console.log('board')
+    board.forEach((cell) => {
+      let cellNode = doc.createElement('div');
+      cellNode.textContent = cell;
+      boardNode.appendChild(cellNode);
+      // if(cell === '') cellNode.addEventListener('click', )
+    });
+  }
+
+  return {
+    renderBoard,
+  }
+
+})(document);
+
+UI.renderBoard(Board.getBoard());
+
 // Player 1
-GameController.playMove(2);
-// Player 2
-GameController.playMove(3);
-// Player 1
-GameController.playMove(4);
-// Player 2
-GameController.playMove(0);
-// Player 1
-GameController.playMove(8);
-// Player 2
-GameController.playMove(6);
+// GameController.playMove(2);
+// // Player 2
+// GameController.playMove(3);
+// // Player 1
+// GameController.playMove(4);
+// // Player 2
+// GameController.playMove(0);
+// // Player 1
+// GameController.playMove(8);
+// // Player 2
+// GameController.playMove(6);
 
 

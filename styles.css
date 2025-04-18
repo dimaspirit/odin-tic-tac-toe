@@ -7,3 +7,29 @@
 * {
   margin: 0;
 }
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+}
+
+.board > div {
+  min-height: 100px;
+
+  background-color: aliceblue;
+  border: 1px solid #fff;
+  cursor: pointer;
+}
+
+.board > div:hover {
+  background-color: #e8f3fc;
+}
