@@ -1,13 +1,12 @@
-console.log('Hello');
-
 function Player(name, marker) {
-  return { name, marker };
+  return { 
+    name, 
+    marker,
+  };
 }
 
 const Board = (() => {
-  const emptyBoard = ['', '', '', '', '', '', '', '', ''];
-
-  let board = [...emptyBoard];
+  let board = ['', '', '', '', '', '', '', '', ''];
 
   const getBoard = () => board;
 
@@ -23,23 +22,71 @@ const Board = (() => {
     return indexes;
   }
 
+  const isEmptyCellsExist = () => board.some(cell => cell === '');
+
+  const isCellEmpty = (index) => {
+    return board[index] === '' ? true : false;
+  }
+
   const setPoint = (player, index) => {
     board[index] = player.marker;
   }
 
-  const clearBoard = () => board = [...emptyBoard];
-
   return {
     getBoard,
     setPoint,
-    clearBoard,
+    isCellEmpty,
+    isEmptyCellsExist,
     getIndexesOfPlayerPoints,
   }
 })();
 
+const UI = (() => {
+  let boardNode = document.querySelector('.board');
+  const resultNode = document.querySelector('.result');
+  let currentPlayerNode = document.querySelector('.current-player');
+
+  const renderBoard = (board, cellClickHandler) => {
+    while(boardNode.firstChild) {
+      boardNode.removeChild(boardNode.lastChild);
+    }
+
+    board.forEach((cell, index) => {
+      let cellNode = document.createElement('div');
+      cellNode.textContent = cell;
+      if(cell === '') cellNode.classList.add('free');
+      cellNode.addEventListener('click', () => cellClickHandler(index));
+      boardNode.appendChild(cellNode);
+    });
+  }
+
+  const setCellClickHandler = (fn) => {
+    let cellNodes = document.querySelectorAll('.board > div');
+    cellNodes.forEach((cellNode, index) => {
+      cellNode.addEventListener('click', () => fn(index))
+    })
+  }
+
+  const renderCurrentPlayer = (player) => {
+    currentPlayerNode.textContent = `${player.name} - ${player.marker}`;
+  }
+
+  const renderResult = (text) => {
+    resultNode.textContent = text;
+  }
+
+  return {
+    renderBoard,
+    renderResult,
+    renderCurrentPlayer,
+    setCellClickHandler,
+  }
+})(document);
+
 const GameController = (() => {
-  const player1 = Player('Player 1', 'O');
-  const player2 = Player('Player 2', 'X');
+  let isGameOver = false;
+  const player1 = Player('Player 1', 'X');
+  const player2 = Player('Player 2', 'O');
 
   let currentPlayer = player1;
 
@@ -62,65 +109,32 @@ const GameController = (() => {
     return winPositions.some(winPosition => winPosition.every((wp, i) => wp === indexes[i]))
   }
 
-  const playMove = (index) => {
+  function playMove(index) {
+    if(isGameOver) return;
+    if(!Board.isCellEmpty(index)) return;
+
     Board.setPoint(currentPlayer, index);
-    console.log(Board.getBoard());
+    UI.renderBoard(Board.getBoard(), playMove);
 
     if(isPlayerWin(currentPlayer)) {
-      console.log(`${currentPlayer.name} is ${isPlayerWin(currentPlayer) ? 'win' : 'not win'}`);
-      return;
-    } 
-    // else check draw
-    
-    currentPlayer = currentPlayer === player1 ? player2 : player1;
+      UI.renderResult(`${currentPlayer.name} is win`);
+      isGameOver = true;
+    } else if(!Board.isEmptyCellsExist()) {
+      UI.renderResult('It\'s a draw.');
+      isGameOver = true;
+    } else {
+      currentPlayer = currentPlayer === player1 ? player2 : player1;
+    }
   }
 
-  const restartGame = () => {
-    currentPlayer = player1;
-    Board.clearBoard();
+  const start = () => {
+    UI.renderBoard(Board.getBoard(), playMove);
   }
 
   return {
+    start,
     playMove,
-    restartGame,
   }
 })();
 
-const UI = ((doc) => {
-  let boardNode = doc.querySelector('.board');
-  let clickCellHandler;
-
-  // let setClickCellHandler = ()
-
-  const renderBoard = (board) => {
-    console.log('board')
-    board.forEach((cell) => {
-      let cellNode = doc.createElement('div');
-      cellNode.textContent = cell;
-      boardNode.appendChild(cellNode);
-      // if(cell === '') cellNode.addEventListener('click', )
-    });
-  }
-
-  return {
-    renderBoard,
-  }
-
-})(document);
-
-UI.renderBoard(Board.getBoard());
-
-// Player 1
-// GameController.playMove(2);
-// // Player 2
-// GameController.playMove(3);
-// // Player 1
-// GameController.playMove(4);
-// // Player 2
-// GameController.playMove(0);
-// // Player 1
-// GameController.playMove(8);
-// // Player 2
-// GameController.playMove(6);
-
-
+GameController.start();
